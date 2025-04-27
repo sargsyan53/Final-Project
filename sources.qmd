@@ -1,0 +1,14 @@
+---
+title: "Sources"
+format: html
+editor: visual
+toc: false
+---
+
+### Data Source Information
+
+The climate change dataset used on this website compiles environmental and demographic indicators from multiple countries across different years. It includes key factors such as average temperature, CO₂ emissions per capita, sea level rise, rainfall, population figures, renewable energy usage, frequency of extreme weather events, and forest area percentage.
+
+The dataset contains 1,000 records across 10 columns, offering critical metrics to analyze the impact and progression of climate change globally. The data was aggregated and curated to provide a clear and accessible overview for research, education, and visualization purposes.
+
+For more information and detailed visualizations, please visit [here](<https://www.kaggle.com/datasets/bhadramohit/climate-change-dataset>).

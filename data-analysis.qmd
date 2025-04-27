@@ -1,0 +1,161 @@
+---
+title: "Data Analysis"
+format: html
+toc: true
+page-layout: full
+execute:
+  echo: false
+---
+
+# Welcome to the Climate Patterns Explorer 🌎
+
+In this section, we dive into three critical aspects of our environment: **Rainfall**, **Forest Areas**, and **Extreme Weather Events**.\
+Let's uncover the hidden stories written in the climate data!
+
+------------------------------------------------------------------------
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(shiny)
+library(shinydashboard)
+# Load data
+temperature_data <- read_csv("data/temperature.csv")
+
+# UI
+ui <- dashboardPage(
+  dashboardHeader(title = "Global Temperature Analysis"),
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Overview", tabName = "overview", icon = icon("dashboard")),
+      menuItem("Graphics", tabName = "graphics", icon = icon("chart-line")),
+      menuItem("Data Table", tabName = "datatable", icon = icon("table"))
+    )
+  ),
+  dashboardBody(
+    tabItems(
+      # Overview Tab
+      tabItem(tabName = "overview",
+              fluidRow(
+                box(title = "Summary Statistics", width = 6, status = "primary",
+                    verbatimTextOutput("summary")),
+                box(title = "Country Selection", width = 6, status = "primary",
+                    selectInput("country", "Choose a country:", 
+                                choices = unique(temperature_data$Country), 
+                                selected = "United States"))
+              ),
+              fluidRow(
+                box(title = "Temperature Trend", width = 12, status = "primary",
+                    plotlyOutput("trendPlot"))
+              )
+      ),
+      
+      # Graphics Tab
+      tabItem(tabName = "graphics",
+              fluidRow(
+                box(title = "Temperature by Year", width = 12, status = "primary",
+                    plotlyOutput("yearPlot"))
+              ),
+              fluidRow(
+                box(title = "Top Hottest Countries", width = 6, status = "warning",
+                    plotlyOutput("topCountriesPlot")),
+                box(title = "Top Coldest Countries", width = 6, status = "info",
+                    plotlyOutput("coldCountriesPlot"))
+              )
+      ),
+      
+      # Data Table Tab
+      tabItem(tabName = "datatable",
+              fluidRow(
+                box(title = "Dataset", width = 12, status = "primary",
+                    DTOutput("dataTable"))
+              )
+      )
+    )
+  )
+)
+
+# Server
+server <- function(input, output) {
+  
+  output$summary <- renderPrint({
+    summary(temperature_data)
+  })
+  
+  output$trendPlot <- renderPlotly({
+    req(input$country)
+    df <- temperature_data %>%
+      filter(Country == input$country)
+    
+    p <- ggplot(df, aes(x = Year, y = AverageTemperature)) +
+      geom_line(color = "firebrick") +
+      geom_point(color = "steelblue") +
+      theme_minimal() +
+      labs(title = paste("Temperature Trend -", input$country),
+           x = "Year",
+           y = "Average Temperature (°C)")
+    
+    ggplotly(p)
+  })
+  
+  output$yearPlot <- renderPlotly({
+    avg_by_year <- temperature_data %>%
+      group_by(Year) %>%
+      summarise(AvgTemp = mean(AverageTemperature, na.rm = TRUE))
+    
+    p <- ggplot(avg_by_year, aes(x = Year, y = AvgTemp)) +
+      geom_line(color = "darkgreen") +
+      theme_minimal() +
+      labs(title = "Global Average Temperature Over Time",
+           x = "Year",
+           y = "Average Temperature (°C)")
+    
+    ggplotly(p)
+  })
+  
+  output$topCountriesPlot <- renderPlotly({
+    top_countries <- temperature_data %>%
+      group_by(Country) %>%
+      summarise(AvgTemp = mean(AverageTemperature, na.rm = TRUE)) %>%
+      arrange(desc(AvgTemp)) %>%
+      head(10)
+    
+    p <- ggplot(top_countries, aes(x = reorder(Country, AvgTemp), y = AvgTemp)) +
+      geom_col(fill = "tomato") +
+      coord_flip() +
+      theme_minimal() +
+      labs(title = "Top 10 Hottest Countries",
+           x = "Country",
+           y = "Average Temperature (°C)")
+    
+    ggplotly(p)
+  })
+  
+  output$coldCountriesPlot <- renderPlotly({
+    cold_countries <- temperature_data %>%
+      group_by(Country) %>%
+      summarise(AvgTemp = mean(AverageTemperature, na.rm = TRUE)) %>%
+      arrange(AvgTemp) %>%
+      head(10)
+    
+    p <- ggplot(cold_countries, aes(x = reorder(Country, AvgTemp), y = AvgTemp)) +
+      geom_col(fill = "steelblue") +
+      coord_flip() +
+      theme_minimal() +
+      labs(title = "Top 10 Coldest Countries",
+           x = "Country",
+           y = "Average Temperature (°C)")
+    
+    ggplotly(p)
+  })
+  
+  output$dataTable <- renderDT({
+    datatable(temperature_data, options = list(pageLength = 10, autoWidth = TRUE))
+  })
+}
+
+# Run the App
+shinyApp(ui, server)
+
+```
