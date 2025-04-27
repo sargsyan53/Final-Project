@@ -1,5 +1,5 @@
 ---
-title: "Data Analysis"
+title: "Data Analysis of Surface Change Rates"
 format: html
 toc: true
 page-layout: full
@@ -7,155 +7,121 @@ execute:
   echo: false
 ---
 
-# Welcome to the Climate Patterns Explorer 🌎
-
-In this section, we dive into three critical aspects of our environment: **Rainfall**, **Forest Areas**, and **Extreme Weather Events**.\
-Let's uncover the hidden stories written in the climate data!
-
-------------------------------------------------------------------------
-
 ```{r}
+#| message: false
+
+# Load necessary libraries
 library(tidyverse)
-library(ggplot2)
 library(readr)
-library(shiny)
-library(shinydashboard)
-# Load data
-temperature_data <- read_csv("data/temperature.csv")
+library(ggplot2)
 
-# UI
-ui <- dashboardPage(
-  dashboardHeader(title = "Global Temperature Analysis"),
-  dashboardSidebar(
-    sidebarMenu(
-      menuItem("Overview", tabName = "overview", icon = icon("dashboard")),
-      menuItem("Graphics", tabName = "graphics", icon = icon("chart-line")),
-      menuItem("Data Table", tabName = "datatable", icon = icon("table"))
-    )
-  ),
-  dashboardBody(
-    tabItems(
-      # Overview Tab
-      tabItem(tabName = "overview",
-              fluidRow(
-                box(title = "Summary Statistics", width = 6, status = "primary",
-                    verbatimTextOutput("summary")),
-                box(title = "Country Selection", width = 6, status = "primary",
-                    selectInput("country", "Choose a country:", 
-                                choices = unique(temperature_data$Country), 
-                                selected = "United States"))
-              ),
-              fluidRow(
-                box(title = "Temperature Trend", width = 12, status = "primary",
-                    plotlyOutput("trendPlot"))
-              )
-      ),
-      
-      # Graphics Tab
-      tabItem(tabName = "graphics",
-              fluidRow(
-                box(title = "Temperature by Year", width = 12, status = "primary",
-                    plotlyOutput("yearPlot"))
-              ),
-              fluidRow(
-                box(title = "Top Hottest Countries", width = 6, status = "warning",
-                    plotlyOutput("topCountriesPlot")),
-                box(title = "Top Coldest Countries", width = 6, status = "info",
-                    plotlyOutput("coldCountriesPlot"))
-              )
-      ),
-      
-      # Data Table Tab
-      tabItem(tabName = "datatable",
-              fluidRow(
-                box(title = "Dataset", width = 12, status = "primary",
-                    DTOutput("dataTable"))
-              )
-      )
-    )
+# Load the dataset
+weather <- read_csv("data/temperature.csv")  # Adjust the path if needed
+
+# Overview of the dataset
+glimpse(weather)
+
+# Check for missing values
+weather_missing_summary <- weather %>%
+  summarise(across(everything(), ~sum(is.na(.)))) %>%
+  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Missing_Values") %>%
+  filter(Missing_Values > 0)
+
+# Display missing value summary
+weather_missing_summary
+
+# Reshape the dataset: pivot longer for years
+weather_long <- weather %>%
+  pivot_longer(
+    cols = `1970`:`2021`,
+    names_to = "Year",
+    values_to = "ChangeRate"
+  ) %>%
+  mutate(Year = as.integer(Year))
+
+# Basic statistics
+weather_stats <- weather_long %>%
+  group_by(Year) %>%
+  summarise(
+    Mean_Change = mean(ChangeRate, na.rm = TRUE),
+    Median_Change = median(ChangeRate, na.rm = TRUE),
+    Min_Change = min(ChangeRate, na.rm = TRUE),
+    Max_Change = max(ChangeRate, na.rm = TRUE),
+    SD_Change = sd(ChangeRate, na.rm = TRUE),
+    .groups = 'drop'
   )
-)
 
-# Server
-server <- function(input, output) {
-  
-  output$summary <- renderPrint({
-    summary(temperature_data)
-  })
-  
-  output$trendPlot <- renderPlotly({
-    req(input$country)
-    df <- temperature_data %>%
-      filter(Country == input$country)
-    
-    p <- ggplot(df, aes(x = Year, y = AverageTemperature)) +
-      geom_line(color = "firebrick") +
-      geom_point(color = "steelblue") +
-      theme_minimal() +
-      labs(title = paste("Temperature Trend -", input$country),
-           x = "Year",
-           y = "Average Temperature (°C)")
-    
-    ggplotly(p)
-  })
-  
-  output$yearPlot <- renderPlotly({
-    avg_by_year <- temperature_data %>%
-      group_by(Year) %>%
-      summarise(AvgTemp = mean(AverageTemperature, na.rm = TRUE))
-    
-    p <- ggplot(avg_by_year, aes(x = Year, y = AvgTemp)) +
-      geom_line(color = "darkgreen") +
-      theme_minimal() +
-      labs(title = "Global Average Temperature Over Time",
-           x = "Year",
-           y = "Average Temperature (°C)")
-    
-    ggplotly(p)
-  })
-  
-  output$topCountriesPlot <- renderPlotly({
-    top_countries <- temperature_data %>%
-      group_by(Country) %>%
-      summarise(AvgTemp = mean(AverageTemperature, na.rm = TRUE)) %>%
-      arrange(desc(AvgTemp)) %>%
-      head(10)
-    
-    p <- ggplot(top_countries, aes(x = reorder(Country, AvgTemp), y = AvgTemp)) +
-      geom_col(fill = "tomato") +
-      coord_flip() +
-      theme_minimal() +
-      labs(title = "Top 10 Hottest Countries",
-           x = "Country",
-           y = "Average Temperature (°C)")
-    
-    ggplotly(p)
-  })
-  
-  output$coldCountriesPlot <- renderPlotly({
-    cold_countries <- temperature_data %>%
-      group_by(Country) %>%
-      summarise(AvgTemp = mean(AverageTemperature, na.rm = TRUE)) %>%
-      arrange(AvgTemp) %>%
-      head(10)
-    
-    p <- ggplot(cold_countries, aes(x = reorder(Country, AvgTemp), y = AvgTemp)) +
-      geom_col(fill = "steelblue") +
-      coord_flip() +
-      theme_minimal() +
-      labs(title = "Top 10 Coldest Countries",
-           x = "Country",
-           y = "Average Temperature (°C)")
-    
-    ggplotly(p)
-  })
-  
-  output$dataTable <- renderDT({
-    datatable(temperature_data, options = list(pageLength = 10, autoWidth = TRUE))
-  })
-}
+# Display yearly statistics
+weather_stats
 
-# Run the App
-shinyApp(ui, server)
+# Plot average change rate over years
+ggplot(weather_stats, aes(x = Year, y = Mean_Change)) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(color = "darkblue") +
+  labs(
+    title = "Average Surface Change Rate Over Years",
+    x = "Year",
+    y = "Average Change Rate"
+  ) +
+  theme_minimal()
+
+# Identify top 10 countries with highest average change rate
+top_countries <- weather_long %>%
+  group_by(`Country Name`) %>%
+  summarise(
+    Avg_Change = mean(ChangeRate, na.rm = TRUE)
+  ) %>%
+  arrange(desc(Avg_Change)) %>%
+  slice_head(n = 10)
+
+# Display top 10 countries
+top_countries
+
+# Plot top 10 countries
+ggplot(top_countries, aes(x = reorder(`Country Name`, Avg_Change), y = Avg_Change)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Top 10 Countries by Average Surface Change Rate (1970-2021)",
+    x = "Country",
+    y = "Average Change Rate"
+  ) +
+  theme_minimal()
+
+# Yearly missing values plot
+weather_long %>%
+  group_by(Year) %>%
+  summarise(Missing = sum(is.na(ChangeRate))) %>%
+  ggplot(aes(x = Year, y = Missing)) +
+  geom_line(color = "red", size = 1) +
+  geom_point(color = "darkred") +
+  labs(
+    title = "Number of Missing Values Over the Years",
+    x = "Year",
+    y = "Count of Missing Values"
+  ) +
+  theme_minimal()
+
+# Distribution of change rates
+ggplot(weather_long, aes(x = ChangeRate)) +
+  geom_histogram(bins = 50, fill = "lightblue", color = "black") +
+  labs(
+    title = "Distribution of Surface Change Rates",
+    x = "Change Rate",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
+# Boxplot by decade
+weather_long %>%
+  mutate(Decade = paste0(floor(Year / 10) * 10, "s")) %>%
+  ggplot(aes(x = Decade, y = ChangeRate)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(
+    title = "Surface Change Rates by Decade",
+    x = "Decade",
+    y = "Change Rate"
+  ) +
+  theme_minimal()
 
 ```
