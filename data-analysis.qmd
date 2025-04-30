@@ -5,123 +5,102 @@ toc: true
 page-layout: full
 execute:
   echo: false
+  message: false
+  warning: false
 ---
 
 ```{r}
-#| message: false
-
-# Load necessary libraries
 library(tidyverse)
-library(readr)
-library(ggplot2)
+library(plotly)
+library(DT)
 
-# Load the dataset
-weather <- read_csv("data/temperature.csv")  # Adjust the path if needed
 
-# Overview of the dataset
-glimpse(weather)
+car_data <- read_csv("data/Sport-car.csv") # Update with your actual file name
 
-# Check for missing values
-weather_missing_summary <- weather %>%
-  summarise(across(everything(), ~sum(is.na(.)))) %>%
-  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Missing_Values") %>%
-  filter(Missing_Values > 0)
 
-# Display missing value summary
-weather_missing_summary
+library(plotly)
 
-# Reshape the dataset: pivot longer for years
-weather_long <- weather %>%
-  pivot_longer(
-    cols = `1970`:`2021`,
-    names_to = "Year",
-    values_to = "ChangeRate"
-  ) %>%
-  mutate(Year = as.integer(Year))
-
-# Basic statistics
-weather_stats <- weather_long %>%
-  group_by(Year) %>%
-  summarise(
-    Mean_Change = mean(ChangeRate, na.rm = TRUE),
-    Median_Change = median(ChangeRate, na.rm = TRUE),
-    Min_Change = min(ChangeRate, na.rm = TRUE),
-    Max_Change = max(ChangeRate, na.rm = TRUE),
-    SD_Change = sd(ChangeRate, na.rm = TRUE),
-    .groups = 'drop'
+plot_ly(
+  data = car_data,
+  x = ~Horsepower,
+  y = ~`Price (in USD)`,
+  type = 'scatter',
+  mode = 'markers',
+  color = ~`Car Make`, 
+  text = ~paste(
+    "<b>Make:</b>", `Car Make`, "<br>",
+    "<b>Model:</b>", `Car Model`, "<br>",
+    "<b>Year:</b>", Year, "<br>",
+    "<b>Horsepower:</b>", Horsepower, "<br>",
+    "<b>Price:</b> $", format(`Price (in USD)`, big.mark = ",")
+  ),
+  marker = list(size = 12, opacity = 0.85, line = list(width = 1, color = "#ffffff"))
+) %>%
+  layout(
+    title = list(text = "💰 Price vs Horsepower", x = 0.5),
+    xaxis = list(title = "Horsepower (hp)", gridcolor = "#eeeeee"),
+    yaxis = list(title = "Price (USD)", tickprefix = "$", gridcolor = "#eeeeee"),
+    plot_bgcolor = "#f9f9f9",
+    paper_bgcolor = "#f9f9f9"
   )
 
-# Display yearly statistics
-weather_stats
 
-# Plot average change rate over years
-ggplot(weather_stats, aes(x = Year, y = Mean_Change)) +
-  geom_line(color = "blue", size = 1) +
-  geom_point(color = "darkblue") +
-  labs(
-    title = "Average Surface Change Rate Over Years",
-    x = "Year",
-    y = "Average Change Rate"
-  ) +
-  theme_minimal()
+library(ggplot2)
+library(scales)
 
-# Identify top 10 countries with highest average change rate
-top_countries <- weather_long %>%
-  group_by(`Country Name`) %>%
-  summarise(
-    Avg_Change = mean(ChangeRate, na.rm = TRUE)
-  ) %>%
-  arrange(desc(Avg_Change)) %>%
-  slice_head(n = 10)
-
-# Display top 10 countries
-top_countries
-
-# Plot top 10 countries
-ggplot(top_countries, aes(x = reorder(`Country Name`, Avg_Change), y = Avg_Change)) +
-  geom_col(fill = "steelblue") +
+car_data %>%
+  group_by(`Car Make`) %>%
+  summarise(Average_Price = mean(`Price (in USD)`, na.rm = TRUE)) %>%
+  ggplot(aes(x = reorder(`Car Make`, Average_Price), y = Average_Price, fill = `Car Make`)) +
+  geom_col(show.legend = FALSE) +
   coord_flip() +
+  scale_y_continuous(labels = dollar_format()) +
+  theme_minimal(base_size = 14) +
   labs(
-    title = "Top 10 Countries by Average Surface Change Rate (1970-2021)",
-    x = "Country",
-    y = "Average Change Rate"
+    title = "📈 Average Car Price by Make",
+    x = "",
+    y = "Average Price (USD)"
   ) +
-  theme_minimal()
+  scale_fill_viridis_d()
 
-# Yearly missing values plot
-weather_long %>%
-  group_by(Year) %>%
-  summarise(Missing = sum(is.na(ChangeRate))) %>%
-  ggplot(aes(x = Year, y = Missing)) +
-  geom_line(color = "red", size = 1) +
-  geom_point(color = "darkred") +
-  labs(
-    title = "Number of Missing Values Over the Years",
-    x = "Year",
-    y = "Count of Missing Values"
-  ) +
-  theme_minimal()
 
-# Distribution of change rates
-ggplot(weather_long, aes(x = ChangeRate)) +
-  geom_histogram(bins = 50, fill = "lightblue", color = "black") +
-  labs(
-    title = "Distribution of Surface Change Rates",
-    x = "Change Rate",
-    y = "Frequency"
-  ) +
-  theme_minimal()
 
-# Boxplot by decade
-weather_long %>%
-  mutate(Decade = paste0(floor(Year / 10) * 10, "s")) %>%
-  ggplot(aes(x = Decade, y = ChangeRate)) +
-  geom_boxplot(fill = "lightgreen") +
+plot_ly(
+  data = car_data,
+  x = ~`0-60 MPH Time (seconds)`,
+  y = ~`Price (in USD)`,
+  color = ~`Car Make`,
+  type = "scatter",
+  mode = "markers",
+  marker = list(size = 10, opacity = 0.9),
+  text = ~paste(
+    "<b>Make:</b>", `Car Make`, "<br>",
+    "<b>Model:</b>", `Car Model`, "<br>",
+    "<b>0-60 Time:</b>", `0-60 MPH Time (seconds)`, " sec", "<br>",
+    "<b>Price:</b> $", format(`Price (in USD)`, big.mark = ",")
+  )
+) %>%
+  layout(
+    title = list(text = "⚡️ Price vs 0–60 MPH Time", x = 0.5),
+    xaxis = list(title = "0–60 MPH Time (Seconds)", gridcolor = "#f0f0f0"),
+    yaxis = list(title = "Price (USD)", tickprefix = "$", gridcolor = "#f0f0f0"),
+    plot_bgcolor = "#fcfcfc",
+    paper_bgcolor = "#fcfcfc"
+  )
+
+
+
+ggplot(car_data, aes(x = `Car Make`, y = `Price (in USD)`, fill = `Car Make`)) +
+  geom_boxplot(alpha = 0.8, outlier.color = "red", outlier.size = 2) +
+  scale_y_continuous(labels = dollar_format()) +
+  coord_flip() +
+  theme_minimal(base_size = 14) +
   labs(
-    title = "Surface Change Rates by Decade",
-    x = "Decade",
-    y = "Change Rate"
+    title = "📦 Price Distribution by Car Make",
+    x = "",
+    y = "Price (USD)"
   ) +
-  theme_minimal()
+  theme(legend.position = "none") +
+  scale_fill_viridis_d()
 
 ```
