@@ -91,7 +91,7 @@ plot_ly(
 
 
 ggplot(car_data, aes(x = `Car Make`, y = `Price (in USD)`, fill = `Car Make`)) +
-  geom_boxplot(alpha = 0.8, outlier.color = "red", outlier.size = 2) +
+  geom_boxplot(alpha = 0.8, outlier.color = "blue", outlier.size = 2) +
   scale_y_continuous(labels = dollar_format()) +
   coord_flip() +
   theme_minimal(base_size = 14) +
