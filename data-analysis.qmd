@@ -1,7 +1,11 @@
 ---
-title: "Car Sales by Year: Visual Insights"
+title: "Car Sale Features Per Year since 2000"
 format: html
 editor: visual
+execute: 
+  warning: false
+  message: false
+  echo: false
 ---
 
 ```{r}
@@ -9,10 +13,8 @@ library(tidyverse)
 library(scales)
 library(ggthemes)
 
-# Load data
 car_data <- read.csv("data/car-dataset.csv", sep = ";")
 
-# Clean and prepare
 car_data <- car_data %>%
   mutate(
     Year = as.factor(Year),
@@ -21,8 +23,11 @@ car_data <- car_data %>%
     Fuel_Type = as.factor(Fuel_Type),
     Units_Sold = as.numeric(Units_Sold),
     Average_Price = as.numeric(Average_Price)
-  )
-#plot1
+)
+```
+
+
+```{r plot1}
 car_data %>%
   group_by(Year) %>%
   summarise(Total_Sold = sum(Units_Sold, na.rm = TRUE)) %>%
@@ -34,67 +39,91 @@ car_data %>%
   theme_minimal(base_size = 14) +
   theme(axis.text.x = element_text( angle=90,hjust = 1, size=12, color="black"))
 
-#plot2
+```
+
+
+```{r plot2}
 car_data %>%
   group_by(Year) %>%
   summarise(Avg_Price = mean(Average_Price, na.rm = TRUE)) %>%
-  ggplot(aes(x = Year, y = Avg_Price, fill = Year)) +
-  geom_col(show.legend = FALSE) +
-  labs(title = "Average Car Price by Year", x = "Year", y = "Average Price (USD)") +
+  ggplot(aes(x = as.numeric(as.character(Year)), y = Avg_Price)) +
+  geom_line(color = "#2E86AB", size = 1.5) +
+  geom_point(color = "#E74C3C", size = 3) +
+  geom_smooth(method = "loess", se = FALSE, color = "darkgreen", linetype = "dashed") +
+  labs(title = "Trend of Average Car Price Over the Years", x = "Year", y = "Average Price (USD)") +
   scale_y_continuous(labels = dollar) +
-  theme_classic(base_size = 14) +
-  theme(axis.text.x = element_text( angle=90,hjust = 1, size=12, color="black"))
-
-#plot3 - Car Color vs Units Sold
-car_data %>%
-  group_by(Car_Color) %>%
-  summarise(Total_Units_Sold = sum(Units_Sold, na.rm = TRUE), .groups = "drop") %>%
-  ggplot(aes(x = reorder(Car_Color, Total_Units_Sold), y = Total_Units_Sold, fill = Car_Color)) +
-  geom_col(show.legend = FALSE) +
-  labs(title = "Total Units Sold by Car Color", x = "Car Color", y = "Total Units Sold") +
-  scale_y_continuous(labels = comma) +
-  coord_flip() +
   theme_minimal(base_size = 14) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 12, color = "black"))
- 
-library(ggplot2)
-library(dplyr)
-library(scales)
-library(forcats)
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 12),
+    panel.grid.minor = element_blank()
+  )
 
-library(ggplot2)
-library(dplyr)
-library(forcats)
-library(RColorBrewer)
+```
 
-# Get most sold car brand for each country and year
-most_sold_brand_country_year <- car_data %>%
-  group_by(Year, Country, Car_Brand) %>%
+```{r plot3}
+most_sold_colors <- car_data %>%
+  group_by(Year, Car_Color) %>%
+  summarise(Units_Sold = sum(Units_Sold, na.rm = TRUE), .groups = "drop") %>%
+  group_by(Year) %>%
+  slice_max(Units_Sold, n = 1)
+
+# Check the structure of most_sold_colors to confirm it has Units_Sold and Car_Color
+str(most_sold_colors)
+
+# Merge the most_sold_colors back with the car_data to keep all necessary columns
+car_data <- car_data %>%
+  left_join(most_sold_colors, by = c("Year", "Car_Color"), suffix = c("", "_max"))
+
+# Check the structure of car_data to confirm it has the expected columns
+str(car_data)
+
+# Plot with correct fill for car colors
+car_data %>%
+  ggplot(aes(x = reorder(Car_Color, Units_Sold_max), y = Units_Sold_max, fill = Car_Color)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  facet_wrap(~Year, scales = "free_y") +
+  coord_flip() +
+  labs(title = "Car Colors by Units Sold and Year", x = "Car Color", y = "Units Sold") +
+  scale_y_continuous(labels = scales::comma) +
+  scale_fill_manual(values = unique(car_data$Car_Color)) +  # Dynamically using unique car colors for the fill
+  theme_light(base_size = 13) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 10, color = "black"),
+    axis.text.y = element_text(size = 10, color = "black"),
+    strip.text = element_text(face = "bold", size = 12),
+    panel.grid = element_blank()
+  )
+
+```
+
+```{r plot4}
+# Get most sold fuel type per country and year
+most_sold_fuel_country_year <- car_data %>%
+  group_by(Year, Country, Fuel_Type) %>%
   summarise(Total_Units_Sold = sum(Units_Sold, na.rm = TRUE), .groups = "drop") %>%
   group_by(Year, Country) %>%
-  slice_max(Total_Units_Sold, n = 1)  # only most sold brand
+  slice_max(Total_Units_Sold, n = 1)  # only most sold fuel type
 
-# Plot with legend for brand colors
-ggplot(most_sold_brand_country_year, aes(x = Year, y = fct_rev(Country), fill = Car_Brand)) +
+# Plot
+ggplot(most_sold_fuel_country_year, aes(x = Year, y = fct_rev(Country), fill = Fuel_Type)) +
   geom_tile(color = "white", width = 0.9, height = 0.9) +
-  geom_text(aes(label = Car_Brand), color = "black", size = 3, fontface = "bold") +
-  scale_fill_manual(
-    values = setNames(colorRampPalette(brewer.pal(12, "Set3"))(length(unique(most_sold_brand_country_year$Car_Brand))),
-                      unique(most_sold_brand_country_year$Car_Brand)),
-    name = "Car Brand"
-  ) +
+  scale_fill_brewer(palette = "Set2", name = "Fuel Type") +
   labs(
-    title = "Most Sold Car Brand by Country and Year",
+    title = "Most Sold Fuel Type by Country and Year",
     x = "Year", y = "Country"
   ) +
   theme_minimal(base_size = 14) +
   theme(
     panel.grid = element_blank(),
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
+    axis.text.x = element_text(angle = 90, hjust = 1, size = 11),
     axis.text.y = element_text(size = 11),
     legend.position = "right",
     legend.title = element_text(size = 12),
     legend.text = element_text(size = 11)
   )
-
 ```
+
+
+
+
