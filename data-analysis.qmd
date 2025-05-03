@@ -61,41 +61,32 @@ car_data %>%
 
 ```
 
-```{r plot3}
+```{r plot3, fig.width=10, fig.height=6}
+# Summarize: Get most sold car color per year
 most_sold_colors <- car_data %>%
   group_by(Year, Car_Color) %>%
   summarise(Units_Sold = sum(Units_Sold, na.rm = TRUE), .groups = "drop") %>%
   group_by(Year) %>%
   slice_max(Units_Sold, n = 1)
 
-# Check the structure of most_sold_colors to confirm it has Units_Sold and Car_Color
-str(most_sold_colors)
-
-# Merge the most_sold_colors back with the car_data to keep all necessary columns
-car_data <- car_data %>%
-  left_join(most_sold_colors, by = c("Year", "Car_Color"), suffix = c("", "_max"))
-
-# Check the structure of car_data to confirm it has the expected columns
-str(car_data)
-
-# Plot with correct fill for car colors
-car_data %>%
-  ggplot(aes(x = reorder(Car_Color, Units_Sold_max), y = Units_Sold_max, fill = Car_Color)) +
-  geom_bar(stat = "identity", show.legend = FALSE) +
-  facet_wrap(~Year, scales = "free_y") +
-  coord_flip() +
-  labs(title = "Car Colors by Units Sold and Year", x = "Car Color", y = "Units Sold") +
-  scale_y_continuous(labels = scales::comma) +
-  scale_fill_manual(values = unique(car_data$Car_Color)) +  # Dynamically using unique car colors for the fill
-  theme_light(base_size = 13) +
+# Plot: Simple bar chart with clean design
+ggplot(most_sold_colors, aes(x = Year, y = Units_Sold, fill = Car_Color)) +
+  geom_col(width = 0.7, show.legend = FALSE) +
+  geom_text(aes(label = Car_Color), vjust = -0.5, size = 3.5) +
+  labs(
+    title = "Most Popular Car Color Each Year (by Units Sold)",
+    x = "Year",
+    y = "Units Sold"
+  ) +
+  scale_y_continuous(labels = scales::comma, expand = expansion(mult = c(0, 0.1))) +
+  theme_minimal(base_size = 14) +
   theme(
-    axis.text.x = element_text(angle = 90, hjust = 1, size = 10, color = "black"),
-    axis.text.y = element_text(size = 10, color = "black"),
-    strip.text = element_text(face = "bold", size = 12),
-    panel.grid = element_blank()
+    axis.text.x = element_text(angle = 75, hjust = 1),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
   )
 
 ```
+
 
 ```{r plot4}
 # Get most sold fuel type per country and year
