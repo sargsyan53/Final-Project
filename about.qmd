@@ -2,8 +2,3 @@
 title: "About"
 toc: false
 ---
-
-### About This Project
-This website explores the changing patterns of our planet's forests, rainfall, and extreme weather events. Using real-world climate data, we focus on how deforestation, shifts in precipitation, and the rise in extreme weather are reshaping ecosystems and affecting communities around the globe.
-
-By highlighting these critical indicators, we aim to make the story of climate change more tangible and relatable. Through clear visuals and simple analysis, we invite you to discover how nature’s patterns are changing — and why it matters more than ever.
