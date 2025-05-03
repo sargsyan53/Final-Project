@@ -1,106 +1,100 @@
 ---
-title: "Data Analysis of Surface Change Rates"
+title: "Car Sales by Year: Visual Insights"
 format: html
-toc: true
-page-layout: full
-execute:
-  echo: false
-  message: false
-  warning: false
+editor: visual
 ---
 
 ```{r}
 library(tidyverse)
-library(plotly)
-library(DT)
+library(scales)
+library(ggthemes)
 
+# Load data
+car_data <- read.csv("data/car-dataset.csv", sep = ";")
 
-car_data <- read_csv("data/Sport-car.csv") # Update with your actual file name
-
-
-library(plotly)
-
-plot_ly(
-  data = car_data,
-  x = ~Horsepower,
-  y = ~`Price (in USD)`,
-  type = 'scatter',
-  mode = 'markers',
-  color = ~`Car Make`, 
-  text = ~paste(
-    "<b>Make:</b>", `Car Make`, "<br>",
-    "<b>Model:</b>", `Car Model`, "<br>",
-    "<b>Year:</b>", Year, "<br>",
-    "<b>Horsepower:</b>", Horsepower, "<br>",
-    "<b>Price:</b> $", format(`Price (in USD)`, big.mark = ",")
-  ),
-  marker = list(size = 12, opacity = 0.85, line = list(width = 1, color = "#ffffff"))
-) %>%
-  layout(
-    title = list(text = "💰 Price vs Horsepower", x = 0.5),
-    xaxis = list(title = "Horsepower (hp)", gridcolor = "#eeeeee"),
-    yaxis = list(title = "Price (USD)", tickprefix = "$", gridcolor = "#eeeeee"),
-    plot_bgcolor = "#f9f9f9",
-    paper_bgcolor = "#f9f9f9"
+# Clean and prepare
+car_data <- car_data %>%
+  mutate(
+    Year = as.factor(Year),
+    Country = as.factor(Country),
+    Car_Brand = as.factor(Car_Brand),
+    Fuel_Type = as.factor(Fuel_Type),
+    Units_Sold = as.numeric(Units_Sold),
+    Average_Price = as.numeric(Average_Price)
   )
+#plot1
+car_data %>%
+  group_by(Year) %>%
+  summarise(Total_Sold = sum(Units_Sold, na.rm = TRUE)) %>%
+  ggplot(aes(x = Year, y = Total_Sold, group = 1)) +
+  geom_line(color = "darkblue", size = 1.2) +
+  geom_point(color = "red", size = 3) +
+  labs(title = "Total Units Sold Over Time", x = "Year", y = "Units Sold") +
+  scale_y_continuous(labels = comma) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text( angle=90,hjust = 1, size=12, color="black"))
 
+#plot2
+car_data %>%
+  group_by(Year) %>%
+  summarise(Avg_Price = mean(Average_Price, na.rm = TRUE)) %>%
+  ggplot(aes(x = Year, y = Avg_Price, fill = Year)) +
+  geom_col(show.legend = FALSE) +
+  labs(title = "Average Car Price by Year", x = "Year", y = "Average Price (USD)") +
+  scale_y_continuous(labels = dollar) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text( angle=90,hjust = 1, size=12, color="black"))
+
+#plot3 - Car Color vs Units Sold
+car_data %>%
+  group_by(Car_Color) %>%
+  summarise(Total_Units_Sold = sum(Units_Sold, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = reorder(Car_Color, Total_Units_Sold), y = Total_Units_Sold, fill = Car_Color)) +
+  geom_col(show.legend = FALSE) +
+  labs(title = "Total Units Sold by Car Color", x = "Car Color", y = "Total Units Sold") +
+  scale_y_continuous(labels = comma) +
+  coord_flip() +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 12, color = "black"))
+ 
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(forcats)
 
 library(ggplot2)
-library(scales)
+library(dplyr)
+library(forcats)
+library(RColorBrewer)
 
-car_data %>%
-  group_by(`Car Make`) %>%
-  summarise(Average_Price = mean(`Price (in USD)`, na.rm = TRUE)) %>%
-  ggplot(aes(x = reorder(`Car Make`, Average_Price), y = Average_Price, fill = `Car Make`)) +
-  geom_col(show.legend = FALSE) +
-  coord_flip() +
-  scale_y_continuous(labels = dollar_format()) +
-  theme_minimal(base_size = 14) +
-  labs(
-    title = "📈 Average Car Price by Make",
-    x = "",
-    y = "Average Price (USD)"
+# Get most sold car brand for each country and year
+most_sold_brand_country_year <- car_data %>%
+  group_by(Year, Country, Car_Brand) %>%
+  summarise(Total_Units_Sold = sum(Units_Sold, na.rm = TRUE), .groups = "drop") %>%
+  group_by(Year, Country) %>%
+  slice_max(Total_Units_Sold, n = 1)  # only most sold brand
+
+# Plot with legend for brand colors
+ggplot(most_sold_brand_country_year, aes(x = Year, y = fct_rev(Country), fill = Car_Brand)) +
+  geom_tile(color = "white", width = 0.9, height = 0.9) +
+  geom_text(aes(label = Car_Brand), color = "black", size = 3, fontface = "bold") +
+  scale_fill_manual(
+    values = setNames(colorRampPalette(brewer.pal(12, "Set3"))(length(unique(most_sold_brand_country_year$Car_Brand))),
+                      unique(most_sold_brand_country_year$Car_Brand)),
+    name = "Car Brand"
   ) +
-  scale_fill_viridis_d()
-
-
-
-plot_ly(
-  data = car_data,
-  x = ~`0-60 MPH Time (seconds)`,
-  y = ~`Price (in USD)`,
-  color = ~`Car Make`,
-  type = "scatter",
-  mode = "markers",
-  marker = list(size = 10, opacity = 0.9),
-  text = ~paste(
-    "<b>Make:</b>", `Car Make`, "<br>",
-    "<b>Model:</b>", `Car Model`, "<br>",
-    "<b>0-60 Time:</b>", `0-60 MPH Time (seconds)`, " sec", "<br>",
-    "<b>Price:</b> $", format(`Price (in USD)`, big.mark = ",")
-  )
-) %>%
-  layout(
-    title = list(text = "⚡️ Price vs 0–60 MPH Time", x = 0.5),
-    xaxis = list(title = "0–60 MPH Time (Seconds)", gridcolor = "#f0f0f0"),
-    yaxis = list(title = "Price (USD)", tickprefix = "$", gridcolor = "#f0f0f0"),
-    plot_bgcolor = "#fcfcfc",
-    paper_bgcolor = "#fcfcfc"
-  )
-
-
-
-ggplot(car_data, aes(x = `Car Make`, y = `Price (in USD)`, fill = `Car Make`)) +
-  geom_boxplot(alpha = 0.8, outlier.color = "blue", outlier.size = 2) +
-  scale_y_continuous(labels = dollar_format()) +
-  coord_flip() +
-  theme_minimal(base_size = 14) +
   labs(
-    title = "📦 Price Distribution by Car Make",
-    x = "",
-    y = "Price (USD)"
+    title = "Most Sold Car Brand by Country and Year",
+    x = "Year", y = "Country"
   ) +
-  theme(legend.position = "none") +
-  scale_fill_viridis_d()
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
+    axis.text.y = element_text(size = 11),
+    legend.position = "right",
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 11)
+  )
 
 ```
