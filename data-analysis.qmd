@@ -47,7 +47,39 @@ car_data %>%
   )
 ```
 
-```{r plot4}
+This graph shows a clear trend: the average price of cars has been steadily increasing every 5 years, from 
+25.000 in 2000 to 37,500 in 2025—a 50% jump in just 25 years.
+
+***Key Reasons for Rising Prices:***
+
+**Technology & Features**
+Modern cars now include advanced safety systems (automatic braking, lane assist), touchscreen infotainment, and hybrid/electric options—all adding to the cost.
+
+**Inflation & Production Costs**
+
+Materials (steel, aluminum, lithium for batteries) and labor costs have risen over time.
+Stricter emissions and safety regulations require expensive engineering.
+
+**Consumer Preferences**
+
+Buyers want SUVs and trucks (which cost more than small cars).
+Luxury brands and premium features are in higher demand.
+
+**Supply Chain Issues**
+
+Events like the pandemic and chip shortages (2020–2022) disrupted production, pushing prices higher.
+
+***What This Means for You:***
+
+**New cars** are becoming a bigger investment. Many buyers now opt for longer loans (6–7 years) or used vehicles.
+
+**Electric cars,** while pricier upfront, may save money on fuel and maintenance long-term.
+
+**Leasing or subscriptions** are growing as alternatives to buying.
+
+
+
+```{r plot2}
 # Get most sold fuel type per country and year
 most_sold_fuel_country_year <- car_data %>%
   group_by(Year, Country, Fuel_Type) %>%
@@ -74,7 +106,43 @@ ggplot(most_sold_fuel_country_year, aes(x = Year, y = fct_rev(Country), fill = F
   )
 ```
 
-```{r plot2}
+This graph shows which **fuel types** (Diesel, Electric, Hybrid, Petrol) were the **most sold** in different countries **(Canada, France, Germany, Italy, Japan, Russia, UK, USA)** from **2000 to 2024.**
+
+**Key Trends to Notice:**
+**Early 2000s (2000–2010):**
+
+**Petrol (gasoline) and Diesel** were dominant in most countries.
+
+**Diesel** was especially popular in Europe (France, Germany, Italy, UK).
+
+**2010s (2010–2020):**
+
+**Hybrid cars** (like Toyota Prius) grew in popularity, especially in **Japan and the USA.**
+
+**Electric cars (EVs)** started appearing but were still rare.
+
+**2020s (2020–2024):**
+
+**Electric cars (EVs) surged** due to better technology, government incentives, and environmental awareness.
+
+**Diesel sales dropped** in Europe due to pollution concerns.
+
+**Hybrids remained strong** as a transition option.
+
+**What This Means:**
+**Petrol (Gasoline)** was the default choice, but **electric and hybrid cars are taking over.**
+
+**Europe** moved from **Diesel → Electric.**
+
+**USA & Japan** shifted from **Petrol → Hybrid → Electric.**
+
+**Russia** still relies more on **Petrol/Diesel** (slower EV adoption).
+
+**Future Prediction:**
+Electric cars will likely become the #1 fuel type in most countries by **2030.**
+
+
+```{r plot3}
 # Load libraries
 library(tidyverse)
 library(readr)
@@ -103,7 +171,7 @@ ggplot(grouped_data, aes(x = HP_Range, y = Total_Units, fill = Safety_Rating)) +
   facet_wrap(~ Safety_Rating, ncol = 2) +
   scale_y_continuous(labels = label_number(scale_cut = cut_short_scale())) +
   labs(
-    title = "Units Sold by Horsepower Range (75 Step, Faceted by Safety Rating)",
+    title = "Units Sold by Horsepower Range",
     x = "Horsepower Range",
     y = "Total Units Sold"
   ) +
@@ -115,8 +183,41 @@ ggplot(grouped_data, aes(x = HP_Range, y = Total_Units, fill = Safety_Rating)) +
   )
 ```
 
+This graph shows *how many cars were sold* based on their *horsepower (HP)* and *safety ratings (A, B, C, D), where:*
 
-```{r plot3, fig.width=10, fig.height=6}
+**A = Best safety | B = Good | C = Average | D = Poor**
+
+*HP ranges* span from *100 HP to 400+ HP*
+
+***Key Trends:***
+
+**Most Popular Horsepower Range:**
+
+The majority of cars sold fall in the *150–250 HP* range.
+
+This balances *power, fuel efficiency, and affordability* for everyday drivers.
+
+**Safety vs. Performance:**
+
+*Highest sales* are in *A/B-rated* cars with *moderate HP (150–250)*—safety matters most to average buyers.
+
+*High-HP cars (300+ HP)* sell in smaller numbers and often have *lower safety ratings (C/D)*—common in sports/luxury vehicles.
+
+*Low-HP cars (<150 HP)* may prioritize fuel economy but vary in safety.
+
+**Market Preferences:**
+
+*Family/commuter cars:* High safety (A/B) + mid-range HP.
+
+*Performance cars:* High HP (300+) but often trade safety for speed.
+
+*Budget cars:* Lower HP + mixed safety ratings.
+
+**What This Means for Buyers:**
+✔ *Need a safe, practical car?* Look for A/B ratings with 150–250 HP.
+✔ *Want speed?* High-HP cars exist but may cost more and compromise safety.
+✔ *Shopping on a budget?* Lower HP options are available, but check safety ratings carefully.
+```{r plot4}
 # Summarize: Get most sold car color per year
 most_sold_colors <- car_data %>%
   group_by(Year, Car_Color) %>%
@@ -124,20 +225,26 @@ most_sold_colors <- car_data %>%
   group_by(Year) %>%
   slice_max(Units_Sold, n = 1)
 
-# Plot: Simple bar chart with clean design
+# Plot: Bar chart with legend on right
 ggplot(most_sold_colors, aes(x = Year, y = Units_Sold, fill = Car_Color)) +
-  geom_col(width = 0.7, show.legend = FALSE) +
-  geom_text(aes(label = Car_Color), vjust = -0.5, size = 3.5) +
+  geom_col(width = 0.7) +  # show.legend = TRUE by default
   labs(
     title = "Most Popular Car Color Each Year (by Units Sold)",
     x = "Year",
-    y = "Units Sold"
+    y = "Units Sold",
+    fill = "Car Color"
   ) +
   scale_y_continuous(labels = scales::comma, expand = expansion(mult = c(0, 0.1))) +
   theme_minimal(base_size = 14) +
   theme(
     axis.text.x = element_text(angle = 75, hjust = 1),
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    legend.position = "right",                 # move legend to right of plot
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10)
   )
 
 ```
+
+A bar chart displaying the top-selling car color for each year based on total units sold.
+

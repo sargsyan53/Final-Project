@@ -37,4 +37,12 @@ car_data %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12, color = "black"))
 ```
 
+Explanation of the Graph: Total Units Sold Over Time
+The line graph displays the total number of units sold each year from approximately 1999 to 2024. Each red dot represents the units sold in a given year, and the connecting blue line illustrates the trend over time.
+
+The data shows significant year-to-year fluctuations in units sold, indicating a market with varying demand or external influences. While there are occasional peaks—such as around 2002, 2006, and 2022—these are often followed by noticeable declines. The highest point appears in 2002, where sales exceeded 2.1 million units, suggesting a particularly strong performance that year.
+
+In contrast, there are notable drops in sales around 2000, 2013, and 2019–2020. The dip in 2019 could reflect broader market disruptions or internal company challenges. Interestingly, after a low point in 2020, there is a brief recovery in 2021–2022, followed by another decline into 2023 and 2024.
+
+Overall, the graph suggests a cyclical or unstable sales pattern rather than steady growth or decline. This volatility may point to seasonal trends, changes in consumer preferences, or impacts from economic or global events. Identifying the causes of these fluctuations would be important for future forecasting and strategic planning.
 

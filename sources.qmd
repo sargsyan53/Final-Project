@@ -5,4 +5,10 @@ editor: visual
 toc: false
 ---
 
-### 
+-   **Data Source:** This dataset is artificially generated using simulated values for educational and analytical purposes. It does not originate from real-world automotive databases.
+
+-   **Assumptions & Structure:** The data was structured around publicly known trends in car brands, types, fuel usage, and average pricing from 2000 to 2024 across the G8 countries.
+
+-   **Tool Used:** The data was generated with the assistance of ChatGPT (OpenAI), based on user-defined criteria.
+
+-   **Disclaimer:** This dataset is not suitable for commercial use or factual reporting but is appropriate for academic, analytical, or visualization practice.

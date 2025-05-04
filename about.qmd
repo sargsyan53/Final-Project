@@ -2,3 +2,7 @@
 title: "About"
 toc: false
 ---
+This data analysis project explores trends and features in car sales data from the year 2000 onward. The page includes a series of interactive visualizations designed to highlight key insights such as average pricing trends, popular fuel types, horsepower distributions, safety ratings, and car color preferences across different years and countries.
+
+The author of this project is **Tigran Sargsyan** - astudent from **TUMO**, and the work is prepared as part of a data exploration initiative at **TUMO Lab**, a center for advanced learning and applied technology.
+
