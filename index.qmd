@@ -6,35 +6,35 @@ This website presents a comprehensive analysis of car sales data from the year 2
 
 
 
-```{r plot-alone} 
-library(tidyverse)
-library(readr)
-car_data <- read.csv("data/car-dataset.csv", sep = ";")
-
-# Clean and filter if necessary
-car_data <- car_data %>%
-  filter(!is.na(Horsepower), !is.na(Year), !is.na(Country))
-car_data %>%
-  group_by(Year, Country) %>%
-  summarise(Average_Horsepower = mean(Horsepower, na.rm = TRUE), .groups = "drop") %>%
-  ggplot(aes(x = Year, y = Average_Horsepower, color = Country)) +
-  geom_line(size = 1.2) +
-  geom_point(size = 2, alpha = 0.8) +
-  scale_color_brewer(palette = "Set2") +
-  labs(
-    title = "Average Horsepower by Country Over the Years",
-    subtitle = "Smoothed trends in horsepower across countries",
-    x = "Year",
-    y = "Average Horsepower",
-    color = "Country"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold", size = 18),
-    plot.subtitle = element_text(size = 13),
-    axis.text = element_text(color = "black"),
-    panel.grid.minor = element_blank()
-  )
-
+```{r setup} 
+#| include: false
+library(ggplot2)
+library(dplyr)
 ```
+
+```{r}
+#| echo: false
+car_data <- read.csv("data/car-dataset.csv")
+```
+
+```{r plot}
+#| echo: false
+#| warning: false
+#| fig-align: center
+#| fig-width: 8
+#| fig-height: 6
+
+car_data %>%
+  group_by(Year) %>%
+  summarise(Total_Sold = sum(Units_Sold, na.rm = TRUE)) %>%
+  ggplot(aes(x = Year, y = Total_Sold, group = 1)) +
+  geom_line(color = "darkblue", size = 1.2) +
+  geom_point(color = "red", size = 3) +
+  labs(title = "Total Units Sold Over Time",
+       x = "Year",
+       y = "Units Sold") +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12, color = "black"))
+```
+
 

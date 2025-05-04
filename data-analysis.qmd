@@ -9,11 +9,12 @@ execute:
 ---
 
 ```{r}
+#| echo: false
+#| include: false
 library(tidyverse)
 library(scales)
 library(ggthemes)
-
-car_data <- read.csv("data/car-dataset.csv", sep = ";")
+car_data <- read.csv("data/car-dataset.csv", sep = ",")
 
 car_data <- car_data %>%
   mutate(
@@ -22,22 +23,28 @@ car_data <- car_data %>%
     Car_Brand = as.factor(Car_Brand),
     Fuel_Type = as.factor(Fuel_Type),
     Units_Sold = as.numeric(Units_Sold),
-    Average_Price = as.numeric(Average_Price)
-)
+    Average_Price = as.numeric(Average_Price),
+    Safety_Rating = as.factor(Safety_Rating),
+    Horsepower = as.numeric(Horsepower)
+  )
 ```
 
 ```{r plot1}
 car_data %>%
   group_by(Year) %>%
-  summarise(Total_Sold = sum(Units_Sold, na.rm = TRUE)) %>%
-  ggplot(aes(x = Year, y = Total_Sold, group = 1)) +
-  geom_line(color = "darkblue", size = 1.2) +
-  geom_point(color = "red", size = 3) +
-  labs(title = "Total Units Sold Over Time", x = "Year", y = "Units Sold") +
-  scale_y_continuous(labels = comma) +
+  summarise(Avg_Price = mean(Average_Price, na.rm = TRUE)) %>%
+  ggplot(aes(x = as.numeric(as.character(Year)), y = Avg_Price)) +
+  geom_line(color = "#2E86AB", size = 1.5) +
+  geom_point(color = "#E74C3C", size = 3) +
+  geom_smooth(method = "loess", se = FALSE, color = "darkgreen", linetype = "dashed") +
+  labs(title = "Trend of Average Car Price Over the Years", x = "Year", y = "Average Price (USD)") +
+  scale_y_continuous(labels = dollar) +
   theme_minimal(base_size = 14) +
-  theme(axis.text.x = element_text( angle=90,hjust = 1, size=12, color="black"))
-
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 12),
+    panel.grid.minor = element_blank()
+  )
 ```
 
 ```{r plot4}
@@ -68,22 +75,44 @@ ggplot(most_sold_fuel_country_year, aes(x = Year, y = fct_rev(Country), fill = F
 ```
 
 ```{r plot2}
-car_data %>%
-  group_by(Year) %>%
-  summarise(Avg_Price = mean(Average_Price, na.rm = TRUE)) %>%
-  ggplot(aes(x = as.numeric(as.character(Year)), y = Avg_Price)) +
-  geom_line(color = "#2E86AB", size = 1.5) +
-  geom_point(color = "#E74C3C", size = 3) +
-  geom_smooth(method = "loess", se = FALSE, color = "darkgreen", linetype = "dashed") +
-  labs(title = "Trend of Average Car Price Over the Years", x = "Year", y = "Average Price (USD)") +
-  scale_y_continuous(labels = dollar) +
-  theme_minimal(base_size = 14) +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
-    axis.text.y = element_text(size = 12),
-    panel.grid.minor = element_blank()
-  )
+# Load libraries
+library(tidyverse)
+library(readr)
+library(scales)
 
+# Read the dataset
+car_data <- read_csv("data/car-dataset.csv")
+
+# Define custom horsepower bins: start at 50, step by 75
+hp_min <- 50
+hp_max <- max(car_data$Horsepower, na.rm = TRUE)
+hp_breaks <- seq(hp_min, ceiling(hp_max + 75), by = 75)
+
+# Create labeled HP ranges
+car_data <- car_data %>%
+  mutate(HP_Range = cut(Horsepower, breaks = hp_breaks, include.lowest = TRUE))
+
+# Summarize Units Sold by HP Range and Safety Rating
+grouped_data <- car_data %>%
+  group_by(HP_Range, Safety_Rating) %>%
+  summarise(Total_Units = sum(Units_Sold, na.rm = TRUE), .groups = "drop")
+
+# Create the faceted plot
+ggplot(grouped_data, aes(x = HP_Range, y = Total_Units, fill = Safety_Rating)) +
+  geom_bar(stat = "identity", alpha = 0.8, show.legend = FALSE) +
+  facet_wrap(~ Safety_Rating, ncol = 2) +
+  scale_y_continuous(labels = label_number(scale_cut = cut_short_scale())) +
+  labs(
+    title = "Units Sold by Horsepower Range (75 Step, Faceted by Safety Rating)",
+    x = "Horsepower Range",
+    y = "Total Units Sold"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 60, hjust = 1),
+    plot.title = element_text(size = 16, face = "bold"),
+    strip.text = element_text(size = 14, face = "bold")
+  )
 ```
 
 
