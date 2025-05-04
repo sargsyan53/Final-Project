@@ -26,7 +26,6 @@ car_data <- car_data %>%
 )
 ```
 
-
 ```{r plot1}
 car_data %>%
   group_by(Year) %>%
@@ -40,53 +39,6 @@ car_data %>%
   theme(axis.text.x = element_text( angle=90,hjust = 1, size=12, color="black"))
 
 ```
-
-
-```{r plot2}
-car_data %>%
-  group_by(Year) %>%
-  summarise(Avg_Price = mean(Average_Price, na.rm = TRUE)) %>%
-  ggplot(aes(x = as.numeric(as.character(Year)), y = Avg_Price)) +
-  geom_line(color = "#2E86AB", size = 1.5) +
-  geom_point(color = "#E74C3C", size = 3) +
-  geom_smooth(method = "loess", se = FALSE, color = "darkgreen", linetype = "dashed") +
-  labs(title = "Trend of Average Car Price Over the Years", x = "Year", y = "Average Price (USD)") +
-  scale_y_continuous(labels = dollar) +
-  theme_minimal(base_size = 14) +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
-    axis.text.y = element_text(size = 12),
-    panel.grid.minor = element_blank()
-  )
-
-```
-
-```{r plot3, fig.width=10, fig.height=6}
-# Summarize: Get most sold car color per year
-most_sold_colors <- car_data %>%
-  group_by(Year, Car_Color) %>%
-  summarise(Units_Sold = sum(Units_Sold, na.rm = TRUE), .groups = "drop") %>%
-  group_by(Year) %>%
-  slice_max(Units_Sold, n = 1)
-
-# Plot: Simple bar chart with clean design
-ggplot(most_sold_colors, aes(x = Year, y = Units_Sold, fill = Car_Color)) +
-  geom_col(width = 0.7, show.legend = FALSE) +
-  geom_text(aes(label = Car_Color), vjust = -0.5, size = 3.5) +
-  labs(
-    title = "Most Popular Car Color Each Year (by Units Sold)",
-    x = "Year",
-    y = "Units Sold"
-  ) +
-  scale_y_continuous(labels = scales::comma, expand = expansion(mult = c(0, 0.1))) +
-  theme_minimal(base_size = 14) +
-  theme(
-    axis.text.x = element_text(angle = 75, hjust = 1),
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
-  )
-
-```
-
 
 ```{r plot4}
 # Get most sold fuel type per country and year
@@ -115,6 +67,48 @@ ggplot(most_sold_fuel_country_year, aes(x = Year, y = fct_rev(Country), fill = F
   )
 ```
 
+```{r plot2}
+car_data %>%
+  group_by(Year) %>%
+  summarise(Avg_Price = mean(Average_Price, na.rm = TRUE)) %>%
+  ggplot(aes(x = as.numeric(as.character(Year)), y = Avg_Price)) +
+  geom_line(color = "#2E86AB", size = 1.5) +
+  geom_point(color = "#E74C3C", size = 3) +
+  geom_smooth(method = "loess", se = FALSE, color = "darkgreen", linetype = "dashed") +
+  labs(title = "Trend of Average Car Price Over the Years", x = "Year", y = "Average Price (USD)") +
+  scale_y_continuous(labels = dollar) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 12),
+    panel.grid.minor = element_blank()
+  )
+
+```
 
 
+```{r plot3, fig.width=10, fig.height=6}
+# Summarize: Get most sold car color per year
+most_sold_colors <- car_data %>%
+  group_by(Year, Car_Color) %>%
+  summarise(Units_Sold = sum(Units_Sold, na.rm = TRUE), .groups = "drop") %>%
+  group_by(Year) %>%
+  slice_max(Units_Sold, n = 1)
 
+# Plot: Simple bar chart with clean design
+ggplot(most_sold_colors, aes(x = Year, y = Units_Sold, fill = Car_Color)) +
+  geom_col(width = 0.7, show.legend = FALSE) +
+  geom_text(aes(label = Car_Color), vjust = -0.5, size = 3.5) +
+  labs(
+    title = "Most Popular Car Color Each Year (by Units Sold)",
+    x = "Year",
+    y = "Units Sold"
+  ) +
+  scale_y_continuous(labels = scales::comma, expand = expansion(mult = c(0, 0.1))) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 75, hjust = 1),
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5)
+  )
+
+```
