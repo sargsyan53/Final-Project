@@ -6,3 +6,13 @@ This data analysis project explores trends and features in car sales data from t
 
 The author of this project is **Tigran Sargsyan** - astudent from **TUMO**, and the work is prepared as part of a data exploration initiative at **TUMO Lab**, a center for advanced learning and applied technology.
 
+-------------------------------------------------------------------------------------------------------------------------------
+
+[TUMO](https://tumo.org)
+
+
+<style>
+body {
+    background: linear-gradient(0.25turn, #efc92d, #dcd9e1, #b2e818);}
+</style>
+

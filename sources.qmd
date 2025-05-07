@@ -12,3 +12,16 @@ toc: false
 -   **Tool Used:** The data was generated with the assistance of ChatGPT (OpenAI), based on user-defined criteria.
 
 -   **Disclaimer:** This dataset is not suitable for commercial use or factual reporting but is appropriate for academic, analytical, or visualization practice.
+
+----------------------------------------------------------------------------------------------------------------
+  
+[![ChatGPT](image/chatGPT.png){width="300px"}](https://openai.com)
+
+
+
+
+<style>
+body {
+    background: linear-gradient(#e3e3e3, #b0b0b0);}
+</style>
+

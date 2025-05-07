@@ -47,23 +47,19 @@ car_data %>%
   )
 ```
 
-This graph shows a clear trend: the average price of cars has been steadily increasing every 5 years, from 
-25.000 in 2000 to 37,500 in 2025—a 50% jump in just 25 years.
+This graph shows a clear trend: the average price of cars has been steadily increasing every 5 years, from 25.000 in 2000 to 37,500 in 2025—a 50% jump in just 25 years.
 
 ***Key Reasons for Rising Prices:***
 
-**Technology & Features**
-Modern cars now include advanced safety systems (automatic braking, lane assist), touchscreen infotainment, and hybrid/electric options—all adding to the cost.
+**Technology & Features** Modern cars now include advanced safety systems (automatic braking, lane assist), touchscreen infotainment, and hybrid/electric options—all adding to the cost.
 
 **Inflation & Production Costs**
 
-Materials (steel, aluminum, lithium for batteries) and labor costs have risen over time.
-Stricter emissions and safety regulations require expensive engineering.
+Materials (steel, aluminum, lithium for batteries) and labor costs have risen over time. Stricter emissions and safety regulations require expensive engineering.
 
 **Consumer Preferences**
 
-Buyers want SUVs and trucks (which cost more than small cars).
-Luxury brands and premium features are in higher demand.
+Buyers want SUVs and trucks (which cost more than small cars). Luxury brands and premium features are in higher demand.
 
 **Supply Chain Issues**
 
@@ -76,8 +72,6 @@ Events like the pandemic and chip shortages (2020–2022) disrupted production, 
 **Electric cars,** while pricier upfront, may save money on fuel and maintenance long-term.
 
 **Leasing or subscriptions** are growing as alternatives to buying.
-
-
 
 ```{r plot2}
 # Get most sold fuel type per country and year
@@ -108,8 +102,7 @@ ggplot(most_sold_fuel_country_year, aes(x = Year, y = fct_rev(Country), fill = F
 
 This graph shows which **fuel types** (Diesel, Electric, Hybrid, Petrol) were the **most sold** in different countries **(Canada, France, Germany, Italy, Japan, Russia, UK, USA)** from **2000 to 2024.**
 
-**Key Trends to Notice:**
-**Early 2000s (2000–2010):**
+**Key Trends to Notice:** **Early 2000s (2000–2010):**
 
 **Petrol (gasoline) and Diesel** were dominant in most countries.
 
@@ -129,8 +122,7 @@ This graph shows which **fuel types** (Diesel, Electric, Hybrid, Petrol) were th
 
 **Hybrids remained strong** as a transition option.
 
-**What This Means:**
-**Petrol (Gasoline)** was the default choice, but **electric and hybrid cars are taking over.**
+**What This Means:** **Petrol (Gasoline)** was the default choice, but **electric and hybrid cars are taking over.**
 
 **Europe** moved from **Diesel → Electric.**
 
@@ -138,9 +130,7 @@ This graph shows which **fuel types** (Diesel, Electric, Hybrid, Petrol) were th
 
 **Russia** still relies more on **Petrol/Diesel** (slower EV adoption).
 
-**Future Prediction:**
-Electric cars will likely become the #1 fuel type in most countries by **2030.**
-
+**Future Prediction:** Electric cars will likely become the #1 fuel type in most countries by **2030.**
 
 ```{r plot3}
 # Load libraries
@@ -185,7 +175,7 @@ ggplot(grouped_data, aes(x = HP_Range, y = Total_Units, fill = Safety_Rating)) +
 
 This graph shows *how many cars were sold* based on their *horsepower (HP)* and *safety ratings (A, B, C, D), where:*
 
-**A = Best safety | B = Good | C = Average | D = Poor**
+**A = Best safety \| B = Good \| C = Average \| D = Poor**
 
 *HP ranges* span from *100 HP to 400+ HP*
 
@@ -203,7 +193,7 @@ This balances *power, fuel efficiency, and affordability* for everyday drivers.
 
 *High-HP cars (300+ HP)* sell in smaller numbers and often have *lower safety ratings (C/D)*—common in sports/luxury vehicles.
 
-*Low-HP cars (<150 HP)* may prioritize fuel economy but vary in safety.
+*Low-HP cars (\<150 HP)* may prioritize fuel economy but vary in safety.
 
 **Market Preferences:**
 
@@ -213,10 +203,14 @@ This balances *power, fuel efficiency, and affordability* for everyday drivers.
 
 *Budget cars:* Lower HP + mixed safety ratings.
 
-**What This Means for Buyers:**
+**What This Means for Buyers:** 
+
 ✔ *Need a safe, practical car?* Look for A/B ratings with 150–250 HP.
-✔ *Want speed?* High-HP cars exist but may cost more and compromise safety.
+
+✔ *Want speed?* High-HP cars exist but may cost more and compromise safety. 
+
 ✔ *Shopping on a budget?* Lower HP options are available, but check safety ratings carefully.
+
 ```{r plot4}
 # Summarize: Get most sold car color per year
 most_sold_colors <- car_data %>%
@@ -246,5 +240,8 @@ ggplot(most_sold_colors, aes(x = Year, y = Units_Sold, fill = Car_Color)) +
 
 ```
 
-A bar chart displaying the top-selling car color for each year based on total units sold.
+<style>
+body {
+    background: linear-gradient(to right, #bdc4e1, #6981e1);}
+</style>
 

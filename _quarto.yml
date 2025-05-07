@@ -16,8 +16,8 @@ website:
 format:
   html:
     theme: 
-      dark: darkly
-      light: cosmo
+      light: lumen
+      dark: united
     css: styles.css
     toc: true
 
