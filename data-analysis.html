@@ -36,11 +36,11 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -214,7 +214,10 @@ ul.task-list li input[type="checkbox"] {
 <p><em>Family/commuter cars:</em> High safety (A/B) + mid-range HP.</p>
 <p><em>Performance cars:</em> High HP (300+) but often trade safety for speed.</p>
 <p><em>Budget cars:</em> Lower HP + mixed safety ratings.</p>
-<p><strong>What This Means for Buyers:</strong> ✔ <em>Need a safe, practical car?</em> Look for A/B ratings with 150–250 HP. ✔ <em>Want speed?</em> High-HP cars exist but may cost more and compromise safety. ✔ <em>Shopping on a budget?</em> Lower HP options are available, but check safety ratings carefully.</p>
+<p><strong>What This Means for Buyers:</strong></p>
+<p>✔ <em>Need a safe, practical car?</em> Look for A/B ratings with 150–250 HP.</p>
+<p>✔ <em>Want speed?</em> High-HP cars exist but may cost more and compromise safety.</p>
+<p>✔ <em>Shopping on a budget?</em> Lower HP options are available, but check safety ratings carefully.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -224,7 +227,10 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<p>A bar chart displaying the top-selling car color for each year based on total units sold.</p>
+<style>
+body {
+    background: linear-gradient(to right, #bdc4e1, #6981e1);}
+</style>
 
 
 
@@ -365,7 +371,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return localAlternateSentinel;
     }
   }
-  const darkModeDefault = true;
+  const darkModeDefault = false;
   let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
   // Dark / light mode switch
   window.quartoToggleColorScheme = () => {
